@@ -1,0 +1,127 @@
+<!doctype html>
+<title>How many words?!</title>
+<script src="wordlist.js"></script>
+<style>
+    body {
+        text-align: center;
+        line-height: 1;
+    }
+    .timer {
+        font-size: 5em;
+    }
+    .status.positive {
+        color: green;
+    }
+    .status.negative {
+        color: red;
+    }
+    .status {
+        box-sizing: content-box;
+        height: 1em;
+        padding-top: 0.5em;
+        font-size: 1.5em;
+    }
+    .status.fading {
+        opacity: 0;
+        transition: opacity 0.5s;
+    }
+    .score {
+        font-size: 1.5em;
+        font-weight: bold;
+        padding: 0.5em 0;
+    }
+    form {
+        margin: 0;
+        padding: 0;
+    }
+    input {
+        font-size: 1.5em;
+    }
+</style>
+<script>
+window.addEventListener('load', () => {    
+    const TOTAL_TIME = 120;
+    const timerElt = document.createElement('div');
+    timerElt.classList.add('timer');
+    const startTime = +new Date();
+    const updateTimer = () => {
+        const now = +new Date();
+        const elapsed = now - startTime;
+        const elapsedSecs = Math.floor(elapsed / 1000);
+        const remainingTotalSecs = TOTAL_TIME - elapsedSecs;
+        let timerText;
+        if (remainingTotalSecs > 0) {
+            const remainingMinutes = Math.floor(remainingTotalSecs / 60);
+            const remainingModSecs = remainingTotalSecs % 60;
+            timerText = `${remainingMinutes}:${remainingModSecs.toString().padStart(2, '0')}`;
+            setTimeout(updateTimer, 1000);
+        } else {
+            timerText = "Time's up!";
+            wordInput.disabled = true;
+            wordForm.style.display = 'none';
+            updateScoreElt(true);
+        }
+        timerElt.textContent = timerText;
+    };
+    updateTimer();
+    document.body.appendChild(timerElt);
+    
+    
+    const statusElt = document.createElement('div');
+    statusElt.classList.add('status');
+    document.body.appendChild(statusElt);
+    let statusTimeout = null;
+    const setStatus = (status, isPositive) => {
+        if (isPositive) {
+            statusElt.classList.remove('negative');
+            statusElt.classList.add('positive');
+        } else {
+            statusElt.classList.remove('positive');
+            statusElt.classList.add('negative');
+        }
+        statusElt.classList.remove('fading');
+        statusElt.textContent = status;
+        if (statusTimeout !== null) {
+            clearTimeout(statusTimeout);
+        }
+        statusTimeout = setTimeout(() => {
+            statusTimeout = null;
+            statusElt.classList.add('fading');
+        }, 250);
+    };
+    
+    
+    let correctWords = []
+    const scoreElt = document.createElement('div');
+    scoreElt.classList.add('score');
+    const updateScoreElt = isFinal => {
+        const firstWord = isFinal ? 'Final' : 'Current';
+        scoreElt.textContent = `${firstWord} score: ${correctWords.length}`;
+    };
+    updateScoreElt();
+    document.body.appendChild(scoreElt);
+    
+    
+    const wordForm = document.createElement('form');
+    const wordInput = document.createElement('input');
+    wordInput.type = 'text';
+    wordForm.appendChild(wordInput);
+    wordForm.addEventListener('submit', ev => {
+        ev.preventDefault();
+        const word = wordInput.value;
+        wordInput.value = '';
+        if (ALL_WORDS.indexOf(word) === -1) {
+            setStatus('Not a word!', false);
+        } else if (correctWords.indexOf(word) !== -1) {
+            setStatus('Already guessed!', false);
+        } else {
+            correctWords.push(word);
+            updateScoreElt();
+            setStatus('Good job!', true);
+        }
+    });
+    document.body.appendChild(wordForm);
+    wordInput.focus();
+    
+});
+</script>
