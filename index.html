@@ -16,15 +16,28 @@
     .status.negative {
         color: red;
     }
-    .status {
+    .statuscontainer {
         box-sizing: content-box;
         height: 1em;
         padding-top: 0.5em;
         font-size: 1.5em;
     }
-    .status.fading {
+    @keyframes statusfade {
+        from {
+            opacity: 1;
+            transform: none;
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-100%) scale(75%);
+        }
+    }
+    .status {
+        position: absolute;
+        left: 0;
+        right: 0;
+        animation: statusfade 0.75s;
         opacity: 0;
-        transition: opacity 0.5s;
     }
     .score {
         font-size: 1.5em;
@@ -68,27 +81,22 @@ window.addEventListener('load', () => {
     document.body.appendChild(timerElt);
     
     
-    const statusElt = document.createElement('div');
-    statusElt.classList.add('status');
-    document.body.appendChild(statusElt);
-    let statusTimeout = null;
+    const statusContainerElt = document.createElement('div');
+    statusContainerElt.classList.add('statuscontainer');
+    document.body.appendChild(statusContainerElt);
     const setStatus = (status, isPositive) => {
+        const statusElt = document.createElement('div');
+        statusElt.classList.add('status');
         if (isPositive) {
-            statusElt.classList.remove('negative');
             statusElt.classList.add('positive');
         } else {
-            statusElt.classList.remove('positive');
             statusElt.classList.add('negative');
         }
-        statusElt.classList.remove('fading');
         statusElt.textContent = status;
-        if (statusTimeout !== null) {
-            clearTimeout(statusTimeout);
-        }
-        statusTimeout = setTimeout(() => {
-            statusTimeout = null;
-            statusElt.classList.add('fading');
-        }, 250);
+        statusContainerElt.appendChild(statusElt);
+        setTimeout(() => {
+            statusContainerElt.removeChild(statusElt);
+        }, 750);
     };
     
     
@@ -109,7 +117,7 @@ window.addEventListener('load', () => {
     wordInput.setAttribute('autocapitalize', 'off');
     wordForm.appendChild(wordInput);
     const submitWord = () => {
-    const word = wordInput.value;
+        const word = wordInput.value;
         wordInput.value = '';
         if (ALL_WORDS.indexOf(word) === -1) {
             setStatus('Not a word!', false);
