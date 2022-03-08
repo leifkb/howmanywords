@@ -107,9 +107,8 @@ window.addEventListener('load', () => {
     wordInput.type = 'text';
     wordInput.setAttribute('autocapitalize', 'off');
     wordForm.appendChild(wordInput);
-    wordForm.addEventListener('submit', ev => {
-        ev.preventDefault();
-        const word = wordInput.value;
+    const submitWord = () => {
+    const word = wordInput.value;
         wordInput.value = '';
         if (ALL_WORDS.indexOf(word) === -1) {
             setStatus('Not a word!', false);
@@ -119,6 +118,16 @@ window.addEventListener('load', () => {
             correctWords.push(word);
             updateScoreElt();
             setStatus('Good job!', true);
+        }
+    };
+    wordForm.addEventListener('submit', ev => {
+        ev.preventDefault();
+        submitWord();
+    });
+    wordInput.addEventListener('keypress', ev => {
+        if (ev.keyCode === 32) {
+            ev.preventDefault();
+            submitWord();
         }
     });
     document.body.appendChild(wordForm);
