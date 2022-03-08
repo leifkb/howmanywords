@@ -105,6 +105,7 @@ window.addEventListener('load', () => {
     const wordForm = document.createElement('form');
     const wordInput = document.createElement('input');
     wordInput.type = 'text';
+    wordInput.setAttribute('autocapitalize', 'off');
     wordForm.appendChild(wordInput);
     wordForm.addEventListener('submit', ev => {
         ev.preventDefault();
